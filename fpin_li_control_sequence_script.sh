@@ -46,7 +46,6 @@ fi
 DEVPATH=$1
 SCSIHOSTID=$2
 PORTID=$3
-NON_MARGINAL_OPTIMIZED=$4
 
 if [ ! "$FCSWITCH" ] || [ ! "$STORARRAY" ]
 then
@@ -85,16 +84,6 @@ send_fpin_link_integrity_event() {
 		exit 2
 	fi
 	sshpass -e ssh "$FCSWITCH" "/fabos/cliexec/ftc test --fpin $PORTID -li -primitive_error"
-}
-
-control_target_path() {
-	SSHPASS=$ARRAY_SSHPASS
-	if [ ! "$SSHPASS" ]
-	then
-		echo "Be sure to export the ARRAY_SSHPASS variable"
-		exit 2
-	fi
-	date; sshpass -e ssh "$STORARRAY" "net int modify -vserver fcqe1 -lif $NON_MARGINAL_OPTIMIZED -status-admin $PATH_STATE"
 }
 
 reset_marginal_rport() {
