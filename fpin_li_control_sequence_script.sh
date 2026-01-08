@@ -37,7 +37,7 @@ POST_CHECK_DELAY=2
 
 if [ ! "$1" ] || [ ! "$2" ] || [ ! "$3" ]
 then
-	echo "Usage: $0 <device> <scsi_host_id> <port_id> <non_marginal_opt_path>"
+	echo "Usage: $0 <device> <scsi_host_id> <port_id>"
 	echo "WARNING: Be sure to use the correct port ID for this host."
 	echo "(Run 'grep . /sys/class/fc_host/host*/port_* to display')"
 	exit 2
