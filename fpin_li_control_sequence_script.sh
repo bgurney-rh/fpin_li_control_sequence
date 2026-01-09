@@ -3,11 +3,9 @@ set -e
 
 # fpin_li_control_sequence_script.sh  -- FPIN link integrity test script
 
-# TODO: SSHPASS needs to be set to a value; set to empty string for now.
-#
 # Prerequisite environment variables:
 # FCSWITCH: "user@host" for fibre channel switch to control
-# SWITCH_SSHPASS: sshpass variable for fibre channel switch
+# SSHPASS: sshpass variable for fibre channel switch
 #
 # Launch the tmux creation script first, using the NVMe device and
 # subsystem for the test namespace:
@@ -52,13 +50,6 @@ then
 	exit 2
 fi
 
-if [ ! "$SWITCH_SSHPASS" ]
-then
-	echo "Be sure to export the SWITCH_SSHPASS variable for the"
-	echo "switch credentials, for the 'sshpass -e' command."
-	exit 2
-fi
-
 check_inflight_per_path() {
 	sleep $DEV_LOSS_TMO
 	nvme list-subsys "$DEVPATH"
@@ -72,10 +63,9 @@ check_inflight_per_path() {
 }
 
 send_fpin_link_integrity_event() {
-	SSHPASS=$SWITCH_SSHPASS
 	if [ ! "$SSHPASS" ]
 	then
-		echo "Be sure to export the SWITCH_SSHPASS variable"
+		echo "Be sure to export the SSHPASS variable."
 		exit 2
 	fi
 	sshpass -e ssh "$FCSWITCH" "/fabos/cliexec/ftc test --fpin $PORTID -li -primitive_error"
