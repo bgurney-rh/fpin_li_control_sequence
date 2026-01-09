@@ -7,9 +7,7 @@ set -e
 #
 # Prerequisite environment variables:
 # FCSWITCH: "user@host" for fibre channel switch to control
-# STORARRAY: "user@host" for storage array to control
 # SWITCH_SSHPASS: sshpass variable for fibre channel switch
-# ARRAY_SSHPASS: sshpass variable for storage array (currently NetApp only)
 #
 # Launch the tmux creation script first, using the NVMe device and
 # subsystem for the test namespace:
@@ -47,20 +45,17 @@ DEVPATH=$1
 SCSIHOSTID=$2
 PORTID=$3
 
-if [ ! "$FCSWITCH" ] || [ ! "$STORARRAY" ]
+if [ ! "$FCSWITCH" ]
 then
-	echo "ERROR: Set the FCSWITCH and STORARRAY variables with the"
-	echo "username@host string for the fibre channel switch to"
-	echo "send FPIN events, and the storage array to control"
-	echo "array-side port states."
+	echo "ERROR: Set the FCSWITCH variable with the username@host"
+	echo "string for the fibre channel switch tosend FPIN events."
 	exit 2
 fi
 
-if [ ! "$SWITCH_SSHPASS" ] || [ ! "$ARRAY_SSHPASS" ]
+if [ ! "$SWITCH_SSHPASS" ]
 then
-	echo "Be sure to export the SWITCH_SSHPASS and ARRAY_SSHPASS"
-	echo "variables for the switch and array credentials, for the"
-	echo "'sshpass -e' commands."
+	echo "Be sure to export the SWITCH_SSHPASS variable for the"
+	echo "switch credentials, for the 'sshpass -e' command."
 	exit 2
 fi
 
