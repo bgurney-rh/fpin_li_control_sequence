@@ -50,6 +50,12 @@ then
 	exit 2
 fi
 
+# Scan for all fibre channel host port_id sysfs files
+FCHOST_PORTIDS=$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/:/\ /g')
+
+echo "FC Host port IDs:"
+echo "$FCHOST_PORTIDS"
+
 check_inflight_per_path() {
 	sleep $DEV_LOSS_TMO
 	nvme list-subsys "$DEVPATH"
