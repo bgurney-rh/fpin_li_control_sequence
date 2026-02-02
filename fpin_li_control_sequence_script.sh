@@ -75,13 +75,16 @@ reset_marginal_rport() {
 	echo "Online" | sudo tee /sys/class/fc_host/"$SCSIHOSTID"/device/rport*/fc_remote_ports/*/port_state
 }
 
+main_test_loop() {
+	date
 
-date
+	echo "Sending FPIN Link Integrity event..."
+	send_fpin_link_integrity_event
+	check_inflight_per_path
 
-echo "Sending FPIN Link Integrity event..."
-send_fpin_link_integrity_event
-check_inflight_per_path
+	echo "Resetting marginal rports to online"
+	reset_marginal_rport
+	check_inflight_per_path
+}
 
-echo "Resetting marginal rports to online"
-reset_marginal_rport
-check_inflight_per_path
+main_test_loop
