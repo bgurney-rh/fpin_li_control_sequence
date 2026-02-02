@@ -87,4 +87,14 @@ main_test_loop() {
 	check_inflight_per_path
 }
 
+FCHOSTS=$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/.*fc_host//g' | sed -e 's/port_id.*//g' | tr -d /)
+echo "FC host entries (first 2):"
+echo "${FCHOSTS[0]}"
+echo "${FCHOSTS[1]}"
+
+FCPORTIDS=$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/:/\ /g' | awk '{print $2}' | sed -e 's/0x//g')
+echo "FC host IDs:"
+echo "${FCPORTIDS[0]}"
+echo "${FCPORTIDS[1]}"
+
 main_test_loop
