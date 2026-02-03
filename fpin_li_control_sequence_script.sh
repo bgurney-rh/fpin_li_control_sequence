@@ -74,7 +74,7 @@ send_fpin_link_integrity_event() {
 		echo "Be sure to export the SSHPASS variable."
 		exit 2
 	fi
-	sshpass -e ssh "$FCSWITCH" "/fabos/cliexec/ftc test --fpin $PORTID -li -primitive_error"
+	sshpass -e ssh "$FCSWITCH" "/fabos/cliexec/ftc test --fpin $PORTID -li -$FPINTYPE"
 }
 
 reset_marginal_rport() {
@@ -84,7 +84,7 @@ reset_marginal_rport() {
 main_test_loop() {
 	date
 
-	echo "Sending FPIN Link Integrity event..."
+	echo "Sending FPIN Link Integrity event $FPINTYPE..."
 	send_fpin_link_integrity_event
 	check_inflight_per_path
 
@@ -103,4 +103,8 @@ echo "FC host IDs:"
 echo "${FCPORTIDS[0]}"
 echo "${FCPORTIDS[1]}"
 
-main_test_loop
+FPINTYPES=(unknown link_failure loss_sync loss_signal primitive_error itw crc dev_specific)
+for FPINTYPE in "${FPINTYPES[@]}"
+do
+	main_test_loop
+done
