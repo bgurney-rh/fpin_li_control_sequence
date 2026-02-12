@@ -28,7 +28,7 @@ set -e
 # - lowest host port ID (may not correspond to lowest fc_host)
 #
 
-DEV_LOSS_TMO=30
+DELAY=5
 POST_CHECK_DELAY=2
 
 if [ ! "$1" ] || [ ! "$2" ] || [ ! "$3" ]
@@ -57,7 +57,7 @@ echo "FC Host port IDs:"
 echo "$FCHOST_PORTIDS"
 
 check_inflight_per_path() {
-	sleep $DEV_LOSS_TMO
+	sleep $DELAY
 	nvme list-subsys "$DEVPATH"
 	for ns_stat in /sys/devices/virtual/nvme-fabrics/ctl/*/nvme*/stat
 	do
