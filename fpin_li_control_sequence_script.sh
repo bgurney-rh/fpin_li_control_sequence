@@ -31,17 +31,15 @@ set -e
 DELAY=5
 POST_CHECK_DELAY=2
 
-if [ ! "$1" ] || [ ! "$2" ] || [ ! "$3" ]
+if [ ! "$1" ]
 then
-	echo "Usage: $0 <device> <scsi_host_id> <port_id>"
-	echo "WARNING: Be sure to use the correct port ID for this host."
-	echo "(Run 'grep . /sys/class/fc_host/host*/port_* to display')"
+	echo "Usage: $0 <device>"
+	echo "    (Run 'grep . /sys/class/fc_host/host*/port_* to display')"
+	echo "     the port IDs used by this host.)"
 	exit 2
 fi
 
 DEVPATH=$1
-SCSIHOSTID=$2
-PORTID=$3
 
 if [ ! "$FCSWITCH" ]
 then
@@ -69,39 +67,55 @@ check_inflight_per_path() {
 }
 
 send_fpin_link_integrity_event() {
+	PORTID=$1
 	if [ ! "$SSHPASS" ]
 	then
 		echo "Be sure to export the SSHPASS variable."
 		exit 2
 	fi
+
 	sshpass -e ssh "$FCSWITCH" "/fabos/cliexec/ftc test --fpin $PORTID -li -$FPINTYPE"
 }
 
 reset_marginal_rport() {
+	SCSIHOSTID=$1
+	echo "Sending reset to $SCSIHOSTID..."
 	echo "Online" | sudo tee /sys/class/fc_host/"$SCSIHOSTID"/device/rport*/fc_remote_ports/*/port_state
 }
 
 main_test_loop() {
 	date
 
-	echo "Sending FPIN Link Integrity event $FPINTYPE..."
-	send_fpin_link_integrity_event
+	echo "Sending FPIN Link Integrity event $FPINTYPE... host ${FCHOSTS[0]}..."
+	send_fpin_link_integrity_event "${FCPORTIDS[0]}"
 	check_inflight_per_path
 
 	echo "Resetting marginal rports to online"
-	reset_marginal_rport
+	reset_marginal_rport "${FCHOSTS[0]}"
+	check_inflight_per_path
+
+	echo "Sending FPIN Link Integrity event $FPINTYPE... host ${FCHOSTS[1]}..."
+	send_fpin_link_integrity_event "${FCPORTIDS[1]}"
+	check_inflight_per_path
+
+	echo "Resetting marginal rports to online"
+	reset_marginal_rport "${FCHOSTS[1]}"
+	check_inflight_per_path
+
+	echo "Sending FPIN Link Integrity event $FPINTYPE... both hosts..."
+	send_fpin_link_integrity_event "${FCPORTIDS[0]}"
+	send_fpin_link_integrity_event "${FCPORTIDS[1]}"
+	check_inflight_per_path
+
+	echo "Resetting marginal rports to online"
+	reset_marginal_rport "${FCHOSTS[0]}"
+	reset_marginal_rport "${FCHOSTS[1]}"
 	check_inflight_per_path
 }
 
-FCHOSTS=$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/.*fc_host//g' | sed -e 's/port_id.*//g' | tr -d /)
-echo "FC host entries (first 2):"
-echo "${FCHOSTS[0]}"
-echo "${FCHOSTS[1]}"
+readarray -t FCHOSTS <<< "$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/.*fc_host//g' | sed -e 's/port_id.*//g' | tr -d /)"
 
-FCPORTIDS=$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/:/\ /g' | awk '{print $2}' | sed -e 's/0x//g')
-echo "FC host IDs:"
-echo "${FCPORTIDS[0]}"
-echo "${FCPORTIDS[1]}"
+readarray -t FCPORTIDS <<< "$(grep . /sys/class/fc_host/host*/port_id | sed -e 's/:/\ /g' | awk '{print $2}' | sed -e 's/0x//g')"
 
 FPINTYPES=(unknown link_failure loss_sync loss_signal primitive_error itw crc dev_specific)
 for FPINTYPE in "${FPINTYPES[@]}"
