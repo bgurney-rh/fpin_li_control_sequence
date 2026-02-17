@@ -10,9 +10,24 @@ as improvements are made.
 Usage: ./launch_tmux_fpin_monitor.sh <device> <subsys>
 ```
 
-Use `tmux attach` to attach to the tmux window
-Use `Ctrl-b ?` for tmux help. Use `q` to exit help window
-Use `Ctrl-d` to detach to tmux
+Use `tmux attach` to attach to the tmux window.
+
+Use `Ctrl+b ?` for tmux help. Use `q` to exit help window.
+
+Use `Ctrl+b, d` to detach the tmux session.
+
+Use these controls for navigating and sizing tmux panes:
+```
+Ctrl+b, up:         Select pane above active pane
+Ctrl+b, down:       Select pane below active pane
+Ctrl+b, left:       Select pane to the left of active pane
+Ctrl+b, right:      Select pane to the right of active pane
+Ctrl+b, Ctrl+up:    Resize pane up by 1 line
+Ctrl+b, Ctrl+down:  Resize pane down by 1 line
+Ctrl+b, Ctrl+left:  Resize pane left by 1 line
+Ctrl+b, Ctrl+right: Resize pane right by 1`line
+Ctrl+b, Ctrl+E:     Auto-resize panes evenly
+```
 
 Example:
 
